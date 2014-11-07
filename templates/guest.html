@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+ <head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+  </head>
+{% autoescape true %}
+<html>
+  <body>
+    <h2> The user {{user}} input is:</h2>
+    <h3> {{greetings}} </h3>
+    <form action="/sign" method="post">
+      <div><textarea name="content" rows="3" cols="60"></textarea></div>
+      <div><input type="submit" value="Sign Guestbook"></div>
+    </form>
+
+    <a href="{{ url_logout|safe }}">{{ url_logout_text}}</a>
+  </body>
+</html>
+{% endautoescape %}
