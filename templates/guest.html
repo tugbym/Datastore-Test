@@ -6,12 +6,27 @@
 {% autoescape true %}
 <html>
   <body>
-    <h2> The user {{user}} input is:</h2>
-    <h3> {{greetings}} </h3>
-    <form action="/sign" method="post">
+      {% for greeting in greetings %}
+      {% if greeting.author %}
+      <b>{{ greeting.author.nickname() }}</b> wrote:
+      {% else %}
+      An anonymous person wrote:
+      {% endif %}
+      <blockquote>{{ greeting.content }}</blockquote>
+      {% endfor %}
+      
+    <form action="/sign?guestbook_name={{ guestbook_name }}" method="post">
       <div><textarea name="content" rows="3" cols="60"></textarea></div>
       <div><input type="submit" value="Sign Guestbook"></div>
     </form>
+      
+      <hr>
+    <hr>
+      
+      <form>Guestbook name:
+      <input value="{{ guestbook_name }}" name="guestbook_name">
+      <input type="submit" value="switch">
+      </form>
 
     <a href="{{ url_logout|safe }}">{{ url_logout_text}}</a>
   </body>

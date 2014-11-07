@@ -1,5 +1,5 @@
 from google.appengine.api import users
-from google.appengine.api import ndb
+from google.appengine.ext import ndb
 import webapp2
 import urllib
 import jinja2
@@ -28,10 +28,10 @@ class MainPage(webapp2.RequestHandler):
         greetings_query = Greeting.query(ancestor=guestbook_key(guestbook_name)).order(-Greeting.date)
         greetings = greetings_query.fetch(10)
         if user:
-        	template = JINJA_ENVIRONMENT.get_template('welcome.html')
+        	template = JINJA_ENVIRONMENT.get_template('guest.html')
         	template_values = {
-                'greetings': greetings
-                'guestbook_name': urllib.quote_plus(guestbook_name)
+                'greetings': greetings,
+                'guestbook_name': urllib.quote_plus(guestbook_name),
             	'user': user.nickname(),
             	'url_logout': logout_url,
             	'url_logout_text': 'Log out',
@@ -43,29 +43,18 @@ class MainPage(webapp2.RequestHandler):
     def post(self):
         user = users.get_current_user()
         logout_url = users.create_logout_url(self.request.path)
+        guestbook_name = self.request.get('guestbook_name',
+                                          DEFAULT_GUESTBOOK_NAME)
         greeting = Greeting(parent=guestbook_key(guestbook_name))
         
-        if users.get_current_user():
-            greeting.author = users.get_current_user
+        if user:
+            greeting.author = user
         
         greeting.content = self.request.get('content')
         greeting.put()
         
         query_params = {'guestbook_name': guestbook_name}
         self.redirect('/?' + urllib.urlencode(query_params))
-        
-        if user:
-        	template = JINJA_ENVIRONMENT.get_template('guest.html')
-        	template_values = {
-            	'user': user.nickname(),
-            	'url_logout': logout_url,
-            	'url_logout_text': 'Log out',
-            	'greetings': self.request.get('content'),
-        	}
-        	self.response.write(template.render(template_values))
-        else:
-            self.redirect(users.create_login_url(self.request.uri))
-
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
